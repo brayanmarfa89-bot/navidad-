@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Feliz Navidad</title>
+  <style>
+    /* Reset */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background: linear-gradient(180deg,#071023 0%, #0b2540 60%, #062a3e 100%);
+      color:#fff;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    /* Night sky stars */
+    .sky {
+      position:absolute;inset:0;pointer-events:none;
+      background-image: radial-gradient(circle at 10% 20%, rgba(255,255,255,0.06) 0 1px, transparent 2px),
+                        radial-gradient(circle at 40% 80%, rgba(255,255,255,0.04) 0 1px, transparent 2px),
+                        radial-gradient(circle at 70% 30%, rgba(255,255,255,0.05) 0 1px, transparent 2px);
+      background-size: 100% 100%;
+      filter: drop-shadow(0 0 2px rgba(255,255,255,0.02));
+    }
+
+    /* Ground */
+    .ground{
+      position:absolute;left:0;right:0;bottom:0;height:22vh;background:linear-gradient(180deg,#ffffff10,#ffffff30);
+      clip-path: ellipse(70% 60% at 50% 100%);
+      transform:translateY(10%);
+      backdrop-filter: blur(2px);
+    }
+
+    /* Container for tree and message */
+    .stage{
+      position:relative;z-index:3;width:100%;max-width:900px;height:80vh;display:flex;align-items:flex-end;justify-content:center;
+      pointer-events:none;padding-bottom:4vh
+    }
+
+    /* Feliz Navidad text */
+    .greeting{
+      position:absolute;top:6vh;left:50%;transform:translateX(-50%);
+      font-size:clamp(28px,6vw,64px);letter-spacing:2px;font-weight:700;
+      text-shadow: 0 6px 20px rgba(0,0,0,0.6), 0 2px 6px rgba(0,0,0,0.5);
+      color: #fff;
+      mix-blend-mode:screen;
+      z-index:4;
+    }
+
+    /* Tree center - simple SVG container */
+    .tree-wrap{width:320px;max-width:40vw;transform:translateY(6%);}
+    svg.tree{width:100%;height:auto;display:block;}
+
+    /* Ornaments blink */
+    .ornament{
+  transform-origin:center;
+  animation: ornBlink 2.6s infinite ease-in-out, colorShift 5s linear infinite;
+}
+    .ornament.o2{animation-delay:.4s}
+    .ornament.o3{animation-delay:.8s}
+    .ornament.o4{animation-delay:1.2s}
+    @keyframes ornBlink{0%,100%{opacity:1;filter:drop-shadow(0 0 6px rgba(255,255,255,0.04))}50%{opacity:0.55;filter:blur(.3px)}}
+
+    /* Star on top twinkle */
+    .star{
+  transform-origin:center;
+  animation: twinkle 2s infinite linear, spinStar 6s linear infinite;
+}
+    @keyframes twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.45;transform:scale(.9)}}
+
+    /* Snowflakes */
+    .snow-layer{position:absolute;inset:0;pointer-events:none;z-index:5}
+
+    /* Realistic snowflakes with soft edges and slight shimmer */
+    .snowflake{
+      position:absolute;
+      top:-10vh;
+      width:14px;
+      height:14px;
+      border-radius:50%;
+      background:radial-gradient(circle, #ffffff 0%, #e9f3ff 60%, #d4e4f7 100%);
+      filter:drop-shadow(0 0 6px rgba(255,255,255,0.6));
+      opacity:0.85;
+      will-change:transform, top, left;
+    }
+
+    /* varying sizes */
+    .snowflake.s1{width:6px;height:6px;opacity:.75}
+    .snowflake.s2{width:10px;height:10px;opacity:.85}
+    .snowflake.s3{width:18px;height:18px;opacity:.95}
+
+    /* smoother, more natural drifting fall */
+    @keyframes fallA{
+      0%{transform:translateY(-10vh) translateX(-2vw) rotate(0deg)}
+      25%{transform:translateY(25vh) translateX(1vw) rotate(120deg)}
+      50%{transform:translateY(55vh) translateX(-1vw) rotate(240deg)}
+      75%{transform:translateY(85vh) translateX(2vw) rotate(360deg)}
+      100%{transform:translateY(120vh) translateX(0vw) rotate(480deg)}
+    }
+    @keyframes fallB{
+      0%{transform:translateY(-10vh) translateX(2vw) rotate(0deg)}
+      25%{transform:translateY(25vh) translateX(-1vw) rotate(-100deg)}
+      50%{transform:translateY(55vh) translateX(1vw) rotate(-220deg)}
+      75%{transform:translateY(85vh) translateX(-2vw) rotate(-340deg)}
+      100%{transform:translateY(120vh) translateX(0vw) rotate(-460deg)}
+    }
+
+    /* subtle foreground glow */ */
+    .ground::after{content:'';position:absolute;left:50%;transform:translateX(-50%);bottom:6px;width:58%;height:14vh;border-radius:50%;background:linear-gradient(180deg,rgba(255,255,255,0.12),transparent)}
+
+    /* small responsive tweaks */
+    @media (max-width:500px){ .tree-wrap{width:65vw} .greeting{top:4vh;font-size:28px} }
+  @keyframes spinStar{
+  0%{transform:translate(160px,40px) rotate(0deg);}
+  100%{transform:translate(160px,40px) rotate(360deg);}
+}
+@keyframes colorShift{
+  0%{filter:hue-rotate(0deg);}
+  50%{filter:hue-rotate(180deg);}
+  100%{filter:hue-rotate(360deg);}
+}
+    /* mensaje esquina inferior */
+    .bottom-msg{
+      position:fixed;
+      bottom:12px;
+      left:12px;
+      font-size:14px;
+      opacity:0.85;
+      color:#ffffffcc;
+      text-shadow:0 0 6px #000;
+      z-index:50;
+      pointer-events:none;
+    }
+    /* Estrella extra arriba del árbol */
+    .top-star{
+      position:absolute;
+      top:-12px; /* Ajustada para pegarse justo a la punta */
+      left:50%;
+      transform:translateX(-50%);
+      width:48px;
+      height:48px;
+      background: radial-gradient(circle, #fff8b3 0%, #ffe066 40%, #ffdf5c 70%, #c9a73a 100%);
+      clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+      filter: drop-shadow(0 0 10px #ffe98a);
+      animation: starSpin 6s linear infinite;
+      z-index:10;
+    }
+
+    @keyframes starSpin{
+      from{transform:translateX(-50%) rotate(0deg)}
+      to{transform:translateX(-50%) rotate(360deg)}
+    }
+</style>
+  <style>
+    /* Luna */
+    .moon{
+      position:absolute;
+      top:8vh;
+      right:10vw;
+      width:120px;
+      height:120px;
+      border-radius:50%;
+      background: radial-gradient(circle at 30% 30%, #ffffff, #d9e3f9 60%, #bfc9e0 100%);
+      box-shadow: 0 0 25px #ffffffaa, 0 0 60px #ffffff55;
+      z-index:1;
+    }
+  </style>
+</head>
+<body>
+  <div class="sky"></div>
+  <div class="moon"></div>
+
+  <div class="stage">
+    
+    <div class="tree-wrap" aria-hidden>
+      <div class="top-star"></div>
+      <!-- SVG christmas tree -->
+      <svg class="tree" viewBox="0 0 320 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Arbol de Navidad realista animado">
+        <!-- Tronco -->
+        <rect x="145" y="380" width="35" height="60" rx="5" fill="#5c3b1e" />
+
+        <!-- Capas verdes más realistas con curvas -->
+        <g fill="#0c8f38" stroke="#065d26" stroke-width="2">
+          <path d="M160 70 C100 130, 60 160, 40 200 C 30 215, 35 225, 55 230 C 120 245, 200 245, 265 230 C 285 225, 290 215, 280 200 C 260 160, 220 130, 160 70" />
+            
+          <path d="M160 140 C90 200, 50 240, 35 280 C 25 300, 35 315, 70 320 C 120 330, 200 330, 250 320 C 285 315, 295 300, 285 280 C 270 240, 230 200, 160 140" />
+
+          <path d="M160 220 C100 280, 65 330, 50 360 C 40 380, 55 395, 90 400 C 130 405, 190 405, 230 400 C 265 395, 280 380, 270 360 C 255 330, 220 280, 160 220" />
+        </g>
+
+        <!-- Luces y adornos adicionales -->
+        <g>
+          <!-- Luces principales -->
+          <circle class="ornament o2" cx="120" cy="200" r="7" fill="#ff5757" />
+          <circle class="ornament o3" cx="200" cy="215" r="7" fill="#ffd447" />
+          <circle class="ornament o4" cx="160" cy="260" r="8" fill="#66c2ff" />
+          <circle class="ornament" cx="100" cy="290" r="6" fill="#ff9b9b" />
+          <circle class="ornament o3" cx="230" cy="290" r="6" fill="#ffdd88" />
+
+          <!-- Nuevas luces pequeñas LED -->
+          <circle class="ornament" cx="140" cy="175" r="4" fill="#6ef7ff" />
+          <circle class="ornament o2" cx="180" cy="185" r="4" fill="#ff8cff" />
+          <circle class="ornament o3" cx="110" cy="240" r="4" fill="#8aff77" />
+          <circle class="ornament o4" cx="210" cy="250" r="4" fill="#ffd6e7" />
+          <circle class="ornament" cx="150" cy="310" r="5" fill="#9ecbff" />
+
+          <!-- Guirnalda dorada -->
+          <path d="M80 230 C130 260, 180 260, 240 230" stroke="#ffef99" stroke-width="4" fill="none" opacity="0.8" />
+          <path d="M70 280 C130 305, 190 305, 250 280" stroke="#ffe066" stroke-width="4" fill="none" opacity="0.85" />
+        </g>
+
+        <!-- Estrella animada más grande -->
+        <g class="star" transform="translate(160,40)">
+          <polygon points="0,-22 6,-7 22,0 6,7 0,22 -6,7 -22,0 -6,-7" fill="#fff59d" stroke="#ffe066" stroke-width="2" />
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="greeting">Feliz Navidad</div>
+
+  <div class="ground"></div>
+
+  <div class="snow-layer" id="snowLayer"></div>
+
+  <script>
+    // Create realistic snowflakes with randomized properties
+    const layer = document.getElementById('snowLayer');
+    const COUNT = 260; // total snowflakes
+    const colors = ['#ffffff','#f8fbff','#f0f8ff'];
+    for(let i=0;i<COUNT;i++){
+      const el = document.createElement('div');
+      const sizeRand = Math.random();
+      const cls = sizeRand < 0.45 ? 's1' : sizeRand < 0.85 ? 's2' : 's3';
+      el.className = 'snowflake '+cls;
+      // random left start
+      const startLeft = Math.random()*100; // vw percent
+      el.style.left = startLeft + 'vw';
+      // random delay and duration
+      const duration = 8 + Math.random()*20; // seconds
+      const delay = -Math.random()*duration; // negative so some are already falling
+      const animName = Math.random() > 0.5 ? 'fallA' : 'fallB';
+      el.style.animation = `${animName} ${duration}s linear ${delay}s infinite`;
+      // random opacity and slight scale
+      el.style.opacity = 0.6 + Math.random()*0.45;
+      const rotate = Math.random()*360;
+      el.style.transform = `rotate(${rotate}deg)`;
+      // subtle horizontal sway using translateX in animation
+      // add tiny blur for depth
+      if(Math.random() > 0.86) el.style.filter = 'blur(0.6px)';
+      // small variation in background
+      el.style.background = colors[Math.floor(Math.random()*colors.length)];
+
+      layer.appendChild(el);
+    }
+
+    // small parallax wind effect on mouse move for fun (mobile safe: small intensities)
+    let lastX = 0,lastY=0;
+    function onMove(e){
+      const x = (e.clientX || (e.touches && e.touches[0] && e.touches[0].clientX) || window.innerWidth/2) / window.innerWidth - 0.5;
+      const y = (e.clientY || (e.touches && e.touches[0] && e.touches[0].clientY) || window.innerHeight/2) / window.innerHeight - 0.5;
+      const dx = (x - lastX)*20; lastX = x; lastY = y;
+      // tweak each snowflake's animation-play-state slightly to simulate wind gust
+      document.querySelectorAll('.snowflake').forEach((s,i)=>{
+        const move = (i%5) - 2;
+        s.style.transform = `translateX(${dx*move}px) rotate(${(i*37)%360}deg)`;
+      });
+    }
+    window.addEventListener('mousemove', onMove, {passive:true});
+    window.addEventListener('touchmove', onMove, {passive:true});
+
+    // Accessibility: Reduce motion respects
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if(prefersReduced.matches){
+      document.querySelectorAll('.snowflake').forEach(s=>{
+        s.style.animationDuration = '0s'; s.style.top = '70vh';
+      });
+    }
+  </script>
+  <div class="bottom-msg">✨pasa una feliz navidad espero que te guste el regalo y esto no quedo muy bien pero te lo hice con cariño✨</div>
+</body>
+</html>
